@@ -26,6 +26,16 @@ namespace Booking.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Role>().HasData(
+                new Role
+                {
+                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    Name = RoleType.Guest,    
+                    Description = "Guest role",
+                    IsDefault = true
+                }
+            );
+
 
             // USER ROLE 
             modelBuilder.Entity<UserRole>()
@@ -50,6 +60,10 @@ namespace Booking.Infrastructure
                 .WithOne(u => u.OwnerProfile)
                 .HasForeignKey<OwnerProfile>(op => op.UserId);
 
+            modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+ 
             // PROPERTY → OWNER 
             modelBuilder.Entity<Property>()
                 .HasOne(p => p.Owner)
