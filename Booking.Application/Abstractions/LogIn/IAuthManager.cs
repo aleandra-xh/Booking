@@ -1,9 +1,10 @@
-﻿using Booking.Application.Features.Auth.Login;
+﻿using Booking.Domain.Users;
 
 namespace Booking.Application.Abstractions.LogIn;
 
-    public interface IAuthManager
-    {
-        Task<LoginResponse> LoginAsync(string email, string password, CancellationToken ct);
-    }
+public interface IAuthManager
+{
+    string GenerateToken(User user);
+    int GetExpiresSeconds();
+}
 

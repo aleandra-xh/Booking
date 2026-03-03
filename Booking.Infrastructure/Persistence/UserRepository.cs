@@ -6,12 +6,19 @@ namespace Booking.Infrastructure.Persistence;
 
 public sealed class UserRepository : GenericRepository<User>, IUserRepository
 {
-    public UserRepository(BookingDbContext dbContext) : base(dbContext) { }
+    private readonly BookingDbContext _context;
 
-    public async Task<bool> IsEmailUnique(string email, CancellationToken ct = default)
+    public UserRepository(BookingDbContext context) : base(context)
     {
-        var normalized = email.Trim().ToLowerInvariant();
-        var exists = await _dbContext.Users.AnyAsync(u => u.Email == normalized, ct);
-        return !exists;
+        _context = context;
     }
+
+    public async Task<bool> IsEmailUnique(string email, CancellationToken ct)
+        => !await _context.Users.AnyAsync(u => u.Email == email, ct);
+
+    public Task<User?> GetByEmailWithRolesAsync(string email, CancellationToken ct)
+        => _context.Users
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Email == email, ct);
 }

@@ -6,6 +6,8 @@ using Booking.Domain.Roles;
 using Booking.Domain.UserRoles;
 using Booking.Domain.Users;
 using MediatR;
+using Booking.Application.Common.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Booking.Application.Features.Users.Register;
 
@@ -31,8 +33,7 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
             .IsEmailUnique(request.UserDto.Email, cancellationToken);
 
         if (!isUnique)
-            throw new Exception("Email already exists.");
-
+            throw new ConflictException("Email already exists.");
 
         var passwordHash = _passwordHasher.Hash(request.UserDto.Password);
 
@@ -40,7 +41,7 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
             .FirstOrDefaultAsync(r => r.IsDefault, cancellationToken);
 
         if (defaultRole is null)
-            throw new Exception("No default role found.");
+            throw new ConflictException("No default role found. Seed a default role first.");
 
         var user = User.CreateUser(request.UserDto, passwordHash);
 
@@ -48,7 +49,15 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
         user.UserRoles.Add(userRole);
 
         await _userRepository.AddAsync(user, cancellationToken);
-        await _userRepository.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _userRepository.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ConflictException("Email already exists.");
+        }
 
         return user.Id;
     }

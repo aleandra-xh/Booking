@@ -5,5 +5,6 @@ namespace Booking.Application.Abstractions.UserRegister;
 
 public interface IUserRepository : IGenericRepository<User>
 {
-    Task<bool> IsEmailUnique(string email, CancellationToken ct = default);
+    Task<bool> IsEmailUnique(string email, CancellationToken ct);
+    Task<User?> GetByEmailWithRolesAsync(string email, CancellationToken ct);
 }

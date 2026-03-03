@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace Booking.Infrastructure;
+namespace Booking.Infrastructure.DependencyInjection;
 
 public static class InfrastructureServiceRegistration
 {
@@ -35,6 +35,11 @@ public static class InfrastructureServiceRegistration
     {
         var jwtSettings = configuration.GetSection("Jwt");
         var secretKey = jwtSettings.GetValue<string>("SecretKey");
+        var issuer = jwtSettings.GetValue<string>("Issuer");
+        var audience = jwtSettings.GetValue<string>("Audience");
+
+        if (string.IsNullOrWhiteSpace(secretKey))
+            throw new Exception("Jwt:SecretKey is missing.");
 
         services.AddAuthentication(options =>
         {
@@ -46,19 +51,23 @@ public static class InfrastructureServiceRegistration
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
+
+                ValidateAudience = true,
+                ValidAudience = audience,
+
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
+
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(secretKey!)
+                    Encoding.UTF8.GetBytes(secretKey)
                 ),
                 ClockSkew = TimeSpan.Zero
             };
         });
 
         services.AddAuthorization();
-
         return services;
     }
 }
