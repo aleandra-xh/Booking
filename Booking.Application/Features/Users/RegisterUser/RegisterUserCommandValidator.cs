@@ -8,7 +8,7 @@ namespace Booking.Application.Features.Users.RegisterUser
         {
             RuleFor(x => x.UserDto.Password)
                 .NotEmpty().WithMessage("Password is required.")
-                .MinimumLength(8).WithMessage("Password must be at least 6 characters long.")
+                .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
                 .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
                 .Matches("[0-9]").WithMessage("Password must contain at least one numeric digit.")
                 .Matches("[!@#$%^&*(),.?\":{}|<>]").WithMessage("Password must contain at least one special character.");
@@ -17,16 +17,21 @@ namespace Booking.Application.Features.Users.RegisterUser
                 .NotEmpty()
                 .EmailAddress().WithMessage("Invalid email address format.");
 
+          
             RuleFor(x => x.UserDto.FirstName)
                 .NotEmpty().WithMessage("First name is required.")
+                .Matches("^[a-zA-Z'-]+$").WithMessage("First name must contain only letters.")
                 .MaximumLength(30);
+                
 
             RuleFor(x => x.UserDto.LastName)
                 .NotEmpty().WithMessage("Last name is required.")
+                .Matches("^[a-zA-Z'-]+$").WithMessage("Last name must contain only letters.")
                 .MaximumLength(30);
 
             RuleFor(x => x.UserDto.PhoneNumber)
                 .NotEmpty().WithMessage("Phone number is required.")
+                .Matches("^[0-9]+$").WithMessage("Phone number must contain only digits.")
                 .MaximumLength(20);
         }
     }
