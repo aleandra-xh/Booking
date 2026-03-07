@@ -14,6 +14,7 @@ builder.Services.AddDbContext<BookingDbContext>(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -28,6 +29,7 @@ app.UseAuthorization();
 
 app.MapOpenApi();
 app.MapUserEndpoints();
+app.MapPropertyEndpoints();
 
 app.MapGet("/v1/test/protected", () => "You are authenticated!")
    .RequireAuthorization();
