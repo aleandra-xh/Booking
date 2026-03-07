@@ -1,4 +1,4 @@
-﻿using Booking.Domain.Users;
+using Booking.Domain.Users;
 using Booking.Domain.Roles;
 using Booking.Domain.UserRoles;
 using Booking.Domain.OwnerProfiles;
@@ -7,6 +7,7 @@ using Booking.Domain.Addresses;
 using Booking.Domain.Reservations;
 using Booking.Domain.Reviews;
 using Microsoft.EntityFrameworkCore;
+using Booking.Domain.PropertyAmenities;
 
 namespace Booking.Infrastructure
 {
@@ -23,6 +24,8 @@ namespace Booking.Infrastructure
         public DbSet<Reservation> Reservations { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; } = null!;
 
+        public DbSet<PropertyAmenity> PropertyAmenities { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,12 +33,25 @@ namespace Booking.Infrastructure
                 new Role
                 {
                     Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    Name = RoleType.Guest,    
+                    Name = RoleType.Guest,
                     Description = "Guest role",
                     IsDefault = true
+                },
+                new Role
+                {
+                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    Name = RoleType.Owner,
+                    Description = "Owner role",
+                    IsDefault = false
+                },
+                new Role
+                {
+                    Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    Name = RoleType.Admin,
+                    Description = "Admin role",
+                    IsDefault = false
                 }
-            );
-
+        );
 
             // USER ROLE 
             modelBuilder.Entity<UserRole>()
@@ -71,12 +87,38 @@ namespace Booking.Infrastructure
                 .HasForeignKey(p => p.OwnerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            // NO DUPLICATE
+            modelBuilder.Entity<Property>()
+                .HasIndex(p => new { p.OwnerId, p.Name })
+                .IsUnique();
+
             // PROPERTY → ADDRESS 
             modelBuilder.Entity<Property>()
            .HasOne(p => p.Address)
            .WithMany(a => a.Properties)
            .HasForeignKey(p => p.AddressId)
            .OnDelete(DeleteBehavior.Restrict);
+
+            // PROPERTY TYPE
+            modelBuilder.Entity<Property>()
+                .Property(p => p.PropertyType)
+                .HasConversion<int>();
+
+            // PROPERTY AMENITY
+            modelBuilder.Entity<PropertyAmenity>(entity =>
+            {
+                entity.ToTable("PropertyAmenities");
+
+                entity.HasKey(x => new { x.PropertyId, x.Amenity });
+
+                entity.Property(x => x.Amenity)
+                      .HasConversion<int>();
+
+                entity.HasOne(x => x.Property)
+                      .WithMany(p => p.Amenities)
+                      .HasForeignKey(x => x.PropertyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
 
             // RESERVATION → GUEST 
@@ -106,6 +148,8 @@ namespace Booking.Infrastructure
                 .WithMany(u => u.Reviews)
                 .HasForeignKey(r => r.GuestId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+
         }
 
     }

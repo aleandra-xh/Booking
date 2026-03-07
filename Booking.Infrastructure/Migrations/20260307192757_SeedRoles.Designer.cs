@@ -4,6 +4,7 @@ using Booking.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Booking.Infrastructure.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    partial class BookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260307192757_SeedRoles")]
+    partial class SeedRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,7 +121,7 @@ namespace Booking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
@@ -130,8 +133,7 @@ namespace Booking.Infrastructure.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.HasIndex("OwnerId", "Name")
-                        .IsUnique();
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Properties");
                 });

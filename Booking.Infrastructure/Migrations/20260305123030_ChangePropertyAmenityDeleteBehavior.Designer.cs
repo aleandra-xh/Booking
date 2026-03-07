@@ -4,6 +4,7 @@ using Booking.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Booking.Infrastructure.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
-    partial class BookingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260305123030_ChangePropertyAmenityDeleteBehavior")]
+    partial class ChangePropertyAmenityDeleteBehavior
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,7 +121,7 @@ namespace Booking.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
@@ -130,8 +133,7 @@ namespace Booking.Infrastructure.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.HasIndex("OwnerId", "Name")
-                        .IsUnique();
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Properties");
                 });
@@ -274,20 +276,6 @@ namespace Booking.Infrastructure.Migrations
                             Description = "Guest role",
                             IsDefault = true,
                             Name = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Description = "Owner role",
-                            IsDefault = false,
-                            Name = 2
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Description = "Admin role",
-                            IsDefault = false,
-                            Name = 3
                         });
                 });
 
